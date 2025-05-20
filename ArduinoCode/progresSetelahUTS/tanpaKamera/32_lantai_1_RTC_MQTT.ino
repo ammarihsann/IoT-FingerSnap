@@ -4,13 +4,13 @@
 #include <ArduinoJson.h>
 
 // ======================= WiFi & MQTT CONFIG =======================
-const char* ssid = "ASARM Family";
-const char* password = "17121997";
+const char* ssid = "";
+const char* password = "";
 
-const char* mqtt_server = "20b4045b4af5432c9978e9c8d1f97a15.s1.eu.hivemq.cloud";
+const char* mqtt_server = "";
 const int mqtt_port = 8883;
-const char* mqtt_username = "hivemq.webclient.1743687647826";
-const char* mqtt_password = "x:WJf80AtIl5UagY$;1>";
+const char* mqtt_username = "";
+const char* mqtt_password = "";
 
 const char* topic_enroll = "/enroll";
 const char* topic_absen  = "/absensi";
