@@ -13,7 +13,7 @@ typedef struct {
 } EnrollCommand;
 
 AbsensiData dataReceived;
-uint8_t esp32BasementMac[] = { 0xCC, 0xDB, 0xA7, 0x3D, 0xD4, 0xDC }; // Ganti sesuai MAC Basement
+uint8_t esp32BasementMac[] = { 0xCA, 0xDB, 0xA7, 0x3D, 0xD4, 0xDC }; // Ganti sesuai MAC Basement
 
 #define SERIAL_BAUDRATE 115200
 #define SERIAL_DEVKIT_RX 16
