@@ -4,13 +4,13 @@
 #include <ArduinoJson.h>
 
 // ======================= CONFIG =======================
-const char* ssid = "Redmi Note 14 5G";
-const char* password = "12344321";
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
 
-const char* mqtt_server = "20b4045b4af5432c9978e9c8d1f97a15.s1.eu.hivemq.cloud";
+const char* mqtt_server = "XXXXXXX.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
-const char* mqtt_username = "hivemq.webclient.1743687647826";
-const char* mqtt_password = "x:WJf80AtIl5UagY$;1>";
+const char* mqtt_username = "hivemq.webclient.XXXXXXXX";
+const char* mqtt_password = "PASSWORD";
 
 const char* topic_enroll = "/enroll";
 const char* topic_absen  = "/absensi";
