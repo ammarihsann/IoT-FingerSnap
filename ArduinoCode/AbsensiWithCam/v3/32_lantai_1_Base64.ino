@@ -8,13 +8,15 @@
 const char* ssid = "SSID";
 const char* password = "PASSWORD";
 
-const char* mqtt_server = "XXXXXXXXXXXXX.s1.eu.hivemq.cloud";
+const char* mqtt_server = "XXXXXXXXXXXXXXXXXX.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
-const char* mqtt_username = "hivemq.webclient.XXXXXXXXXXXXXXXXXXXX";
-const char* mqtt_password = "XXXXXXXXXXXXXXXXX";
+const char* mqtt_username = "hivemq.webclient.XXXXXXXXXXXXXXXXX";
+const char* mqtt_password = "XXXXXXXXXXXXXXXXXXXXXXX";
 
 const char* topic_absen = "/absensi";
 const char* topic_image = "/image/raw";
+const char* topic_enroll = "/enroll";
+const char* topic_hapus = "/hapus";
 
 // ======================= MQTT =======================
 WiFiClientSecure espClient;
@@ -35,7 +37,7 @@ void setup() {
 
   espClient.setInsecure(); // Skip certificate verification
   client.setServer(mqtt_server, mqtt_port);
-  client.setBufferSize(12288);  // pastikan cukup besar untuk payload base64
+  client.setBufferSize(12288);
   client.setCallback(mqttCallback);
 
   connectToMQTT();
@@ -72,7 +74,6 @@ void loop() {
       return; // tunggu hingga selesai
     }
 
-    // Baca baris perintah dari Serial2
     char ch = Serial2.read();
     if (ch == '\n') {
       handleSerialInput(serialBuffer);
@@ -140,6 +141,9 @@ void connectToMQTT() {
     Serial.print("🔗 Connecting to MQTT...");
     if (client.connect("ESP32_DEVKIT_CLIENT", mqtt_username, mqtt_password)) {
       Serial.println("✅ Connected to MQTT");
+
+      client.subscribe(topic_enroll);
+      client.subscribe(topic_hapus);
     } else {
       Serial.print("❌ Failed, rc=");
       Serial.println(client.state());
@@ -149,5 +153,21 @@ void connectToMQTT() {
 }
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  // Kosong karena kita hanya publish dari sini
+  StaticJsonDocument<200> doc;
+  DeserializationError err = deserializeJson(doc, payload, length);
+  if (err) {
+    Serial.println("❌ JSON parse error");
+    return;
+  }
+
+  if (!doc.containsKey("fingerprint_id")) return;
+
+  int id = doc["fingerprint_id"];
+  if (strcmp(topic, topic_enroll) == 0) {
+    Serial.printf("📤 Kirim perintah ENROLL ID %d ke ESP32U\n", id);
+    Serial2.printf("ENROLL:%d\n", id);
+  } else if (strcmp(topic, topic_hapus) == 0) {
+    Serial.printf("📤 Kirim perintah HAPUS ID %d ke ESP32U\n", id);
+    Serial2.printf("HAPUS:%d\n", id);
+  }
 }
