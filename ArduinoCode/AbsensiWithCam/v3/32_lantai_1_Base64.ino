@@ -5,13 +5,13 @@
 #include <base64.h>  // Gunakan versi ini untuk Base64
 
 // ======================= CONFIG =======================
-const char* ssid = "ASARM Family";
-const char* password = "17121997";
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
 
-const char* mqtt_server = "20b4045b4af5432c9978e9c8d1f97a15.s1.eu.hivemq.cloud";
+const char* mqtt_server = "XXXXXXXXXXXXX.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
-const char* mqtt_username = "hivemq.webclient.1743687647826";
-const char* mqtt_password = "x:WJf80AtIl5UagY$;1>";
+const char* mqtt_username = "hivemq.webclient.XXXXXXXXXXXXXXXXXXXX";
+const char* mqtt_password = "XXXXXXXXXXXXXXXXX";
 
 const char* topic_absen = "/absensi";
 const char* topic_image = "/image/raw";
