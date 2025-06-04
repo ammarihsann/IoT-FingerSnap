@@ -95,7 +95,7 @@ void onDataReceived(const esp_now_recv_info* info, const uint8_t* data, int len)
 
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
-  Serial2.begin(9600, SERIAL_8N1, SERIAL_DEVKIT_RX, SERIAL_DEVKIT_TX);
+  Serial2.begin(115200, SERIAL_8N1, SERIAL_DEVKIT_RX, SERIAL_DEVKIT_TX);
   WiFi.mode(WIFI_STA);
 
   if (esp_now_init() != ESP_OK) {
