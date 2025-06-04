@@ -40,7 +40,7 @@ def on_message(client, userdata, msg):
 
 # Setup client
 client = mqtt.Client()
-client.username_pw_set("hivemq.webclient.1743687647826", "x:WJf80AtIl5UagY$;1>")
+client.username_pw_set("hivemq.webclient.XXXXXX", "XXXXXXXXXXXXXX")
 client.tls_set()  # karena HiveMQ pakai TLS
 client.on_connect = on_connect
 client.on_message = on_message
