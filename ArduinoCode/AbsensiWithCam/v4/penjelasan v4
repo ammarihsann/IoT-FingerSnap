@@ -1,1 +1,3 @@
-
+Tidak menggunakan base64
+file biner jpeg di kirim ke MQTT
+bisa di baca oleh server
