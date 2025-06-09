@@ -1,215 +1,285 @@
+#include <Adafruit_Fingerprint.h>
+#include <HardwareSerial.h>
 #include <esp_now.h>
 #include <WiFi.h>
-#include "esp_camera.h"
-#include "esp_crc.h"  // Untuk CRC32
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <RTClib.h>
 
-#define DEBUG 1  // Ubah ke 0 untuk menonaktifkan debug
+// ====================== OLED SETUP ======================
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// --- Konfigurasi Kamera (AI-Thinker ESP32-CAM) ---
-#define PWDN_GPIO_NUM     32
-#define RESET_GPIO_NUM    -1
-#define XCLK_GPIO_NUM      0
-#define SIOD_GPIO_NUM     26
-#define SIOC_GPIO_NUM     27
-#define Y9_GPIO_NUM       35
-#define Y8_GPIO_NUM       34
-#define Y7_GPIO_NUM       39
-#define Y6_GPIO_NUM       36
-#define Y5_GPIO_NUM       21
-#define Y4_GPIO_NUM       19
-#define Y3_GPIO_NUM       18
-#define Y2_GPIO_NUM        5
-#define VSYNC_GPIO_NUM    25
-#define HREF_GPIO_NUM     23
-#define PCLK_GPIO_NUM     22
+// ====================== RTC ======================
+RTC_DS3231 rtc;
 
-// MAC Address ESP32U (tujuan)
-uint8_t esp32u_mac[] = {0x94, 0x54, 0xC5, 0x74, 0xE9, 0x60};  // Ganti sesuai alamat MAC tujuan
+// ====================== BUZZER ======================
+#define BUZZER_PIN 2
 
-// Struct metadata gambar
+// ====================== FINGERPRINT ======================
+HardwareSerial mySerial(2); // RX=16, TX=17
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+
+// ====================== ESP-NOW ======================
+uint8_t esp32uMac[]   = { 0x94, 0x54, 0xC5, 0x74, 0xE9, 0x60 }; // MAC ESP32U
+uint8_t esp32camMac[] = { 0x78, 0xE3, 0x6D, 0xDD, 0xB6, 0x78 }; // MAC ESP32-CAM
+
+// Struct untuk data absensi ke ESP32U
 typedef struct {
-  uint16_t fingerprint_id;
-  uint32_t total_size;
-  uint16_t total_chunks;
-} __attribute__((packed)) ImageMetadata;
+  int fingerprint_id;
+  char timestamp[25];
+} AbsensiData;
 
-// Struct chunk data
+// Struct untuk perintah enroll
 typedef struct {
-  uint16_t index;
-  uint16_t length;
-  uint8_t data[230];
-} __attribute__((packed)) ImageChunk;
+  int fingerprint_id;
+} EnrollCommand;
 
-// Struct akhir
-typedef struct {
-  uint32_t crc32;
-} __attribute__((packed)) ImageEnd;
+AbsensiData absensiData;
+bool enrollRequested = false;
+uint8_t enrollId = 0;
+uint16_t triggerFingerID;
 
-volatile uint16_t trigger_fingerprint_id = 0;
-bool trigger_ready = false;
+enum Mode { MODE_ABSEN, MODE_ENROLL };
+Mode currentMode = MODE_ABSEN;
 
-// Callback untuk menerima trigger dari ESP32 lain
-void onDataRecv(const esp_now_recv_info_t *recvInfo, const uint8_t *data, int len) {
-  if (len >= sizeof(uint16_t)) {
-    trigger_fingerprint_id = *(const uint16_t *)data;
-    trigger_ready = true;
-#if DEBUG
-    Serial.printf("📥 Trigger diterima: fingerprint_id = %d\n", trigger_fingerprint_id);
-#endif
+// ====================== FUNGSI ======================
+void beep(int times) {
+  for (int i = 0; i < times; i++) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100);
+    digitalWrite(BUZZER_PIN, LOW);
+    delay(100);
   }
 }
 
-bool initCamera() {
-  camera_config_t config;
-  config.ledc_channel = LEDC_CHANNEL_0;
-  config.ledc_timer = LEDC_TIMER_0;
-  config.pin_d0 = Y2_GPIO_NUM;
-  config.pin_d1 = Y3_GPIO_NUM;
-  config.pin_d2 = Y4_GPIO_NUM;
-  config.pin_d3 = Y5_GPIO_NUM;
-  config.pin_d4 = Y6_GPIO_NUM;
-  config.pin_d5 = Y7_GPIO_NUM;
-  config.pin_d6 = Y8_GPIO_NUM;
-  config.pin_d7 = Y9_GPIO_NUM;
-  config.pin_xclk = XCLK_GPIO_NUM;
-  config.pin_pclk = PCLK_GPIO_NUM;
-  config.pin_vsync = VSYNC_GPIO_NUM;
-  config.pin_href = HREF_GPIO_NUM;
-  config.pin_sscb_sda = SIOD_GPIO_NUM;
-  config.pin_sscb_scl = SIOC_GPIO_NUM;
-  config.pin_pwdn = PWDN_GPIO_NUM;
-  config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size = FRAMESIZE_VGA;
-  config.jpeg_quality = 30;
-  config.fb_count = 1;
+void showOnOLED(const String& line2, const String& line3) {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.println("Status:");
+  display.setTextSize(2);
+  display.setCursor(0, 16);
+  display.println(line2);
+  display.setCursor(0, 40);
+  display.println(line3);
+  display.display();
+}
 
-  return esp_camera_init(&config) == ESP_OK;
+void showIdleAnimation() {
+  DateTime now = rtc.now();
+  char timeStr[9], dateStr[11];
+  sprintf(timeStr, "%02d:%02d:%02d", now.hour(), now.minute(), now.second());
+  sprintf(dateStr, "%02d-%02d-%04d", now.day(), now.month(), now.year());
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.println("Waktu:");
+  display.setTextSize(2);
+  display.setCursor(0, 16);
+  display.println(timeStr);
+  display.setTextSize(1);
+  display.setCursor(0, 48);
+  display.println(dateStr);
+  display.display();
+}
+
+void showEnrollStatus(const String& status) {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.println("Enroll mode:");
+  display.setTextSize(2);
+  display.setCursor(0, 20);
+  display.println(status);
+  display.display();
+}
+
+bool enrollFingerprint(uint8_t id) {
+  int p;
+  Serial.println("🖐️ Letakkan jari pertama...");
+  showEnrollStatus("Letakkan  jari");
+  while ((p = finger.getImage()) != FINGERPRINT_OK) {
+    if (p == FINGERPRINT_NOFINGER) Serial.print(".");
+    else return false;
+    delay(100);
+  }
+  Serial.println("\n✅ Gambar pertama diambil");
+
+  if (finger.image2Tz(1) != FINGERPRINT_OK) return false;
+
+  Serial.println("👉 Angkat jari...");
+  showEnrollStatus("Angkat    jari");
+  delay(2000);
+  while (finger.getImage() != FINGERPRINT_NOFINGER) delay(100);
+
+  Serial.println("🖐️ Letakkan jari lagi...");
+  showEnrollStatus("Letakkan  jari lagi");
+  delay(2000);
+  while ((p = finger.getImage()) != FINGERPRINT_OK) {
+    if (p == FINGERPRINT_NOFINGER) Serial.print(".");
+    else return false;
+    delay(100);
+  }
+  Serial.println("\n✅ Gambar kedua diambil");
+
+  if (finger.image2Tz(2) != FINGERPRINT_OK) return false;
+  if (finger.createModel() != FINGERPRINT_OK) return false;
+  if (finger.storeModel(id) != FINGERPRINT_OK) return false;
+
+  return true;
+}
+
+bool deleteFingerprint(uint8_t id) {
+  uint8_t p = finger.deleteModel(id);
+  if (p == FINGERPRINT_OK) {
+    Serial.println("✅ Hapus sukses");
+    return true;
+  } else {
+    Serial.println("❌ Gagal hapus sidik jari");
+    return false;
+  }
+}
+
+void onDataReceived(const esp_now_recv_info* info, const uint8_t* data, int len) {
+  if (len == sizeof(EnrollCommand)) {
+    EnrollCommand cmd;
+    memcpy(&cmd, data, sizeof(cmd));
+    
+    if (cmd.fingerprint_id < 0) {
+      uint8_t idToDelete = -cmd.fingerprint_id;
+      Serial.printf("🗑️ Perintah hapus fingerprint ID %d diterima\n", idToDelete);
+      if (deleteFingerprint(idToDelete)) {
+        showOnOLED("Hapus", "sukses");
+        beep(2);
+      } else {
+        showOnOLED("Hapus", "gagal");
+        beep(1);
+      }
+      delay(2000);
+    } else {
+      enrollRequested = true;
+      enrollId = cmd.fingerprint_id;
+      currentMode = MODE_ENROLL;
+      Serial.printf("📌 Enroll diminta untuk ID: %d\n", enrollId);
+    }
+  } else {
+    Serial.println("⚠️ Data size mismatch!");
+  }
 }
 
 void setup() {
   Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
-  delay(1000);
+  mySerial.begin(57600, SERIAL_8N1, 16, 17);
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
 
-#if DEBUG
-  Serial.print("📡 ESP32-CAM MAC: ");
-  Serial.println(WiFi.macAddress());
-#endif
-
-  if (!initCamera()) {
-    Serial.println("❌ Gagal inisialisasi kamera");
+  // OLED
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("❌ OLED tidak ditemukan");
     while (true) delay(1000);
   }
+  display.clearDisplay(); display.display();
 
+  // RTC
+  if (!rtc.begin()) {
+    Serial.println("❌ RTC tidak ditemukan!");
+    while (true);
+  }
+  if (rtc.lostPower()) rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  rtc.adjust(DateTime(2025, 6, 6, 4, 1, 0));
+
+  // Fingerprint
+  if (finger.verifyPassword()) {
+    Serial.println("✅ Sensor fingerprint terdeteksi");
+  } else {
+    Serial.println("❌ Fingerprint sensor tidak ditemukan!");
+    while (true);
+  }
+
+  // ESP-NOW
+  WiFi.mode(WIFI_STA);
   if (esp_now_init() != ESP_OK) {
-    Serial.println("❌ ESP-NOW init gagal");
+    Serial.println("❌ ESP-NOW gagal init");
     return;
   }
+  esp_now_register_recv_cb(onDataReceived);
 
-  esp_now_peer_info_t peerInfo = {};
-  memcpy(peerInfo.peer_addr, esp32u_mac, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
-
-  if (!esp_now_is_peer_exist(esp32u_mac)) {
-    if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-      Serial.println("❌ Gagal tambah peer");
-      return;
-    }
+  esp_now_peer_info_t peerInfoU = {};
+  memcpy(peerInfoU.peer_addr, esp32uMac, 6);
+  peerInfoU.channel = 0;
+  peerInfoU.encrypt = false;
+  if (!esp_now_is_peer_exist(esp32uMac)) {
+    esp_now_add_peer(&peerInfoU);
   }
 
-  esp_now_register_recv_cb(onDataRecv);
-
-#if DEBUG
-  Serial.println("🤖 ESP32-CAM siap, menunggu trigger...");
-#endif
+  esp_now_peer_info_t peerInfoCam = {};
+  memcpy(peerInfoCam.peer_addr, esp32camMac, 6);
+  peerInfoCam.channel = 0;
+  peerInfoCam.encrypt = false;
+  if (!esp_now_is_peer_exist(esp32camMac)) {
+    esp_now_add_peer(&peerInfoCam);
+  }
 }
 
 void loop() {
-  if (trigger_ready) {
-    trigger_ready = false;
-
-#if DEBUG
-    Serial.printf("📸 Trigger diproses: fingerprint_id = %d\n", trigger_fingerprint_id);
-#endif
-
-    camera_fb_t *fb = NULL;
-
-    // Buang 2 dummy frame agar gambar valid
-    for (int i = 0; i < 2; i++) {
-      fb = esp_camera_fb_get();
-      if (fb) esp_camera_fb_return(fb);
-      delay(100);
+  if (currentMode == MODE_ENROLL && enrollRequested) {
+    Serial.println("🔁 MODE_ENROLL aktif...");
+    if (enrollFingerprint(enrollId)) {
+      Serial.println("✅ Enroll sukses");
+      showOnOLED("Enroll", "sukses");
+      beep(2);
+    } else {
+      Serial.println("❌ Enroll gagal");
+      showOnOLED("Enroll", "gagal");
+      beep(1);
     }
-
-    // Ambil frame aktual
-    fb = esp_camera_fb_get();
-    if (!fb) {
-      Serial.println("❌ Gagal ambil gambar");
-      return;
-    }
-
-    uint32_t img_len = fb->len;
-    uint8_t* img_buf = fb->buf;
-    uint16_t chunk_size = 230;
-    uint16_t total_chunks = (img_len + chunk_size - 1) / chunk_size;
-
-    // Kirim metadata
-    ImageMetadata meta;
-    meta.fingerprint_id = trigger_fingerprint_id;
-    meta.total_size = img_len;
-    meta.total_chunks = total_chunks;
-
-    if (esp_now_send(esp32u_mac, (uint8_t*)&meta, sizeof(meta)) != ESP_OK) {
-      Serial.println("❌ Gagal kirim metadata");
-      esp_camera_fb_return(fb);
-      return;
-    }
-
-#if DEBUG
-    Serial.printf("📤 Metadata: size=%u bytes, chunks=%u\n", img_len, total_chunks);
-#endif
-
-    delay(50);
-
-    for (uint16_t i = 0; i < total_chunks; i++) {
-      ImageChunk chunk;
-      chunk.index = i;
-      uint16_t bytes_left = img_len - (i * chunk_size);
-      chunk.length = (bytes_left > chunk_size) ? chunk_size : bytes_left;
-      memcpy(chunk.data, img_buf + i * chunk_size, chunk.length);
-
-      bool success = false;
-      for (int attempt = 0; attempt < 3 && !success; attempt++) {
-        esp_err_t result = esp_now_send(esp32u_mac, (uint8_t*)&chunk, 4 + chunk.length);
-        success = (result == ESP_OK);
-        if (!success) delay(10);
-      }
-
-#if DEBUG
-      if (success) {
-        Serial.printf("📦 Chunk %d/%d terkirim (%d bytes)\n", i + 1, total_chunks, chunk.length);
-      } else {
-        Serial.printf("❌ Gagal kirim chunk %d\n", i);
-      }
-#endif
-      delay(15);  // jeda antar chunk
-    }
-
-    // Kirim CRC32 di akhir
-    uint32_t crc = esp_crc32_le(0, img_buf, img_len);
-    ImageEnd end;
-    end.crc32 = crc;
-    esp_now_send(esp32u_mac, (uint8_t*)&end, sizeof(end));
-
-#if DEBUG
-    Serial.printf("✅ Semua chunk terkirim. CRC32: 0x%08X\n", crc);
-#endif
-
-    esp_camera_fb_return(fb);
+    currentMode = MODE_ABSEN;
+    enrollRequested = false;
+    enrollId = 0;
+    delay(2000);
   }
 
-  delay(10);
+  if (currentMode == MODE_ABSEN) {
+    int p = finger.getImage();
+    if (p == FINGERPRINT_NOFINGER) {
+      showIdleAnimation();
+      delay(100);
+      return;
+    }
+    if (p != FINGERPRINT_OK) return;
+    p = finger.image2Tz();
+    if (p != FINGERPRINT_OK) return;
+    p = finger.fingerSearch();
+    if (p == FINGERPRINT_OK) {
+      DateTime now = rtc.now();
+      absensiData.fingerprint_id = finger.fingerID;
+      sprintf(absensiData.timestamp, "%04d-%02d-%02d %02d:%02d:%02d",
+              now.year(), now.month(), now.day(),
+              now.hour(), now.minute(), now.second());
+
+      // Kirim ke ESP32U
+      esp_now_send(esp32uMac, (uint8_t*)&absensiData, sizeof(absensiData));
+      Serial.printf("👤 Absen ID %d dikirim ke ESP32U\n", absensiData.fingerprint_id);
+
+      // Kirim trigger ke ESP32-CAM
+      triggerFingerID = finger.fingerID;
+      esp_now_send(esp32camMac, (uint8_t*)&triggerFingerID, sizeof(triggerFingerID));
+      Serial.printf("📸 Trigger ID %d dikirim ke ESP32-CAM\n", triggerFingerID);
+
+      showOnOLED("Absensi", "Berhasil!");
+      beep(2);
+    } else {
+      Serial.println("🙅 Tidak ditemukan");
+      showOnOLED("Absensi", "Gagal!");
+      beep(1);
+    }
+    delay(2000);
+  }
 }
