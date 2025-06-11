@@ -45,5 +45,5 @@ client.tls_set()  # karena HiveMQ pakai TLS
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("20b4045b4af5432c9978e9c8d1f97a15.s1.eu.hivemq.cloud", 8883, 60)
+client.connect("XXXXXXXXXXXXXXXX.s1.eu.hivemq.cloud", 8883, 60)
 client.loop_forever()
