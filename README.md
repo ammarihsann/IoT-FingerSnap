@@ -56,10 +56,6 @@ Topik MQTT	Fungsi
 
 💬 Perintah Serial2 ke ESP32U
 Gunakan format berikut untuk mengontrol sistem dari ESP32 Lantai 1 ke ESP32U:
-
-plaintext
-Copy
-Edit
 ENROLL:<id>           → Daftarkan fingerprint ID
 HAPUS:<id>            → Hapus fingerprint ID
 SETTIME:<timestamp>   → Set waktu RTC format: YYYY-MM-DD HH:MM:SS
@@ -67,19 +63,13 @@ Contoh:
 ENROLL:1
 HAPUS:3
 SETTIME:2025-06-11 10:45:00
+
 🛠 Dependencies Arduino
 Pastikan kamu sudah menginstal library berikut pada Arduino IDE:
-
 ArduinoJson
-
 ESP-NOW (sudah bawaan ESP32 board package)
-
 Adafruit SSD1306
-
 RTClib
-
-mbedtls/base64.h (bawaan ESP32 core)
-
 esp_camera (bawaan ESP32-CAM board)
 
 ⚠️ Catatan Teknis
