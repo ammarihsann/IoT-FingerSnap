@@ -7,4 +7,5 @@ TESTING/
 Dockerfile
 ArduinoCode/
 web/
-./src/config/serviceAccountKey.json
+src/config/serviceAccountKey.json
+bfg.jar
