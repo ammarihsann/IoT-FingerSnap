@@ -1,0 +1,4 @@
+V2 ini proses encode berada di ESP32u 
+beda dengan V1 proses encode Base64 berada di ESP32cam, 
+hasilnya masih sama aja masih memerlukan waktu 10 detik 
+untuk mengirimnya ke MQTT

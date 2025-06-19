@@ -1,0 +1,12 @@
+node_modules/
+.env
+.DS_Store
+*.log
+TESTING/
+.dockerignore
+Dockerfile
+ArduinoCode/
+web/
+bfg.jar
+Backend/src/config/serviceAccountKey.json
+Backup.txt
