@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Web_Admin/public/assets/Scan in full(putih).png" alt="Scan In Logo" width="120"/>
+  <img src="Web_Admin/public/assets/Scan_in_full(putih).png" alt="Scan In Logo" width="120"/>
 </p>
 
 # 🚀 Scan In
