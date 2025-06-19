@@ -95,25 +95,38 @@ Gunakan Serial2 (GPIO 16 dan 17) agar tidak mengganggu debug Serial utama.
 ✅ Semua chunk diterima.
 📤 Gambar mentah dikirim ke lantai 1
 
+```
+
 ---
 
 ## 🖥️ Backend (Node.js + Express + Firebase)
 
-- Backend dibangun dengan **JavaScript (Node.js)** menggunakan framework **Express**.
-- Mengelola REST API untuk autentikasi, user, absensi, jadwal, aktivitas, dan pengaturan hardware.
-- Terintegrasi dengan **MQTT** untuk menerima data absensi dan gambar dari perangkat IoT.
-- Data absensi dan gambar disimpan di **Firestore** dan **Google Cloud Storage**.
-- Mendukung pengaturan dinamis batas jam check-in/check-out dari dashboard admin.
-- Semua logika bisnis dan komunikasi dengan perangkat menggunakan JavaScript.
+- **Bahasa:** JavaScript (Node.js) + Express
+- **Fungsi utama:**
+  - REST API: autentikasi, user, absensi, jadwal, aktivitas, pengaturan hardware
+  - Integrasi MQTT: menerima data absensi & gambar dari perangkat IoT
+  - Penyimpanan: Firestore (data absensi), Google Cloud Storage (gambar)
+  - Pengaturan dinamis: batas jam check-in/out dari dashboard admin
+  - Semua logika bisnis & komunikasi perangkat dalam JavaScript
+- **Struktur folder utama:**
+  - `Backend/src/controllers/` – logika API (absensi, user, auth, dsb)
+  - `Backend/src/routes/` – endpoint REST API
+  - `Backend/src/services/` – akses data & logika bisnis
+  - `Backend/src/config/` – konfigurasi Firebase, MQTT, dll
 
 ---
 
 ## 🌐 Web Admin (Scan In)
 
-- Web admin **Scan In** dibangun dengan **HTML, CSS, dan JavaScript**.
-- Menyediakan dashboard real-time untuk monitoring absensi, aktivitas, dan status perangkat.
-- Fitur kelola pegawai, jadwal, rekap absensi, dan pengaturan hardware langsung dari web.
-- Komunikasi dengan backend dilakukan melalui **AJAX/Fetch API** (JavaScript).
-- Pengaturan batas jam check-in/check-out dapat diubah langsung dari halaman pengaturan.
-- Tampilan responsif dan mudah digunakan untuk semua perangkat.
-```
+- **Bahasa:** HTML, CSS, JavaScript
+- **Fungsi utama:**
+  - Dashboard real-time: monitoring absensi, aktivitas, status perangkat
+  - Fitur: kelola pegawai, jadwal, rekap absensi, pengaturan hardware
+  - Komunikasi backend: AJAX/Fetch API
+  - Pengaturan batas jam check-in/out langsung dari web
+  - Tampilan responsif, mudah digunakan
+- **Struktur folder utama:**
+  - `Web_Admin/public/admin-dashboard/` – halaman dashboard, absensi, jadwal, pegawai, pengaturan
+  - `Web_Admin/public/assets/` – aset gambar/logo
+
+---
