@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Web_Admin/public/assets/Scan in full(putih).png" alt="Scan In Logo" width="120"/>
+</p>
+
 # 🚀 Scan In
 
 Sistem absensi digital berbasis IoT yang modern, praktis, dan real-time. Menggabungkan ESP32, fingerprint, kamera, backend Node.js, dan web admin responsif untuk pengalaman absensi yang seamless.
