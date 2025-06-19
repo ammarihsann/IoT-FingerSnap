@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Scan In</title>
+		<!-- Add favicon -->
+		<link rel="icon" href="../assets/Scan_in(logo_saja).png" type="image/png" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+			rel="stylesheet"
+		/>
+
+		<style>
+			:root {
+				--primary: #2563eb;
+				--primary-light: #60a5fa;
+				--primary-dark: #1d4ed8;
+				--secondary: #0ea5e9;
+				--accent: #f43f5e;
+				--dark: #1e293b;
+				--light: #f8fafc;
+				--gray: #64748b;
+				--gray-light: #e2e8f0;
+				--success: #10b981;
+				--error: #ef4444;
+				--warning: #f59e0b;
+			}
+
+			body {
+				font-family: "Plus Jakarta Sans", sans-serif;
+				background-color: #f1f5f9;
+				margin: 0;
+				padding: 0;
+				min-height: 100vh;
+				color: var(--dark);
+			}
+
+			.sidebar {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 100%;
+				width: 280px; /* Lebar sidebar */
+				background: linear-gradient(145deg, #1e40af, #3b82f6);
+				color: white;
+				z-index: 1000;
+				transition: all 0.3s ease;
+				box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+				display: flex;
+				flex-direction: column;
+				overflow: hidden; /* Mencegah overflow */
+			}
+
+			.sidebar-header {
+				height: 160px; /* Atur sesuai kebutuhan, misal 180-220px */
+				min-height: 0;
+				padding: 20px 30px 10px 30px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center; /* Tengah secara vertikal */
+				background: transparent;
+				overflow: hidden; /* Penting: agar logo tidak keluar area header */
+			}
+
+			.sidebar-menu {
+				padding: 25px 0;
+				flex-grow: 1;
+				overflow-y: auto; /* Allow scrolling for menu items */
+			}
+
+			.sidebar-logo {
+				display: static;
+				align-items: center;
+				justify-content: center;
+				margin: 0 0 8px 0;
+				padding: 0;
+			}
+
+			.sidebar-logo img {
+				height: 100%; /* Logo akan mengikuti tinggi header */
+				max-height: 500px; /* Batas maksimum agar tidak terlalu besar */
+				width: auto;
+				display: block;
+				max-width: 90%;
+				margin: 0 auto;
+				object-fit: contain;
+			}
+
+			.sidebar-logo {
+				font-size: 24px;
+				font-weight: 700;
+				letter-spacing: 0.5px;
+			}
+
+			.sidebar-logo i {
+				font-size: 28px;
+			}
+
+			.sidebar-menu {
+				padding: 25px 0;
+				flex-grow: 1;
+				overflow-y: auto;
+			}
+
+			.menu-item {
+				padding: 14px 30px;
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				color: rgba(255, 255, 255, 0.85);
+				text-decoration: none;
+				font-weight: 500;
+				transition: all 0.3s;
+				border-left: 4px solid transparent;
+			}
+
+			.menu-item:hover {
+				background: rgba(255, 255, 255, 0.1);
+				color: white;
+			}
+
+			.menu-item.active {
+				background: rgba(255, 255, 255, 0.15);
+				color: white;
+				border-left: 4px solid var(--primary-light);
+			}
+
+			.menu-item i {
+				font-size: 18px;
+				width: 22px;
+				text-align: center;
+			}
+
+			.sidebar-footer {
+				padding: 20px 30px;
+				border-top: 1px solid rgba(255, 255, 255, 0.1);
+			}
+
+			.admin-info {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 15px;
+			}
+
+			.admin-avatar {
+				width: 42px;
+				height: 42px;
+				background: rgba(255, 255, 255, 0.2);
+				border-radius: 12px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 18px;
+			}
+
+			.admin-name {
+				font-size: 15px;
+				font-weight: 600;
+			}
+
+			.admin-role {
+				font-size: 12px;
+				opacity: 0.8;
+			}
+
+			.logout-btn {
+				background: rgba(255, 255, 255, 0.15);
+				color: white;
+				border: none;
+				border-radius: 10px;
+				padding: 12px;
+				font-weight: 500;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+				width: 100%;
+				transition: all 0.3s ease;
+			}
+
+			.logout-btn:hover {
+				background: var(--accent);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(244, 63, 94, 0.3);
+			}
+
+			.main-content {
+				margin-left: 280px;
+				padding: 30px;
+				transition: all 0.3s ease;
+			}
+
+			.page-header {
+				margin-bottom: 30px;
+				padding-bottom: 15px;
+				border-bottom: 1px solid var(--gray-light);
+			}
+
+			.page-title {
+				font-weight: 700;
+				font-size: 28px;
+				color: var(--dark);
+				margin-bottom: 8px;
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.page-subtitle {
+				color: var(--gray);
+				font-size: 15px;
+			}
+
+			.btn-custom {
+				background: linear-gradient(to right, var(--primary), var(--secondary));
+				color: white;
+				border: none;
+				border-radius: 12px;
+				padding: 12px 20px;
+				font-weight: 600;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				transition: all 0.3s;
+			}
+
+			.btn-custom:hover {
+				background: linear-gradient(
+					to right,
+					var(--primary-dark),
+					var(--primary)
+				);
+				transform: translateY(-2px);
+				box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+			}
+
+			.table-container {
+				background: white;
+				border-radius: 16px;
+				box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+				padding: 25px;
+				margin-bottom: 30px;
+				overflow: hidden;
+			}
+
+			.table {
+				width: 100%;
+				margin-bottom: 0;
+			}
+
+			.table th {
+				color: var(--gray);
+				font-weight: 600;
+				padding: 15px 20px;
+				border-bottom: 2px solid var(--gray-light);
+				background-color: rgba(241, 245, 249, 0.5);
+			}
+
+			.table td {
+				padding: 15px 20px;
+				vertical-align: middle;
+				border-bottom: 1px solid var(--gray-light);
+				transition: all 0.2s;
+			}
+
+			.table tr:hover td {
+				background-color: rgba(96, 165, 250, 0.05);
+			}
+
+			.table tbody tr:last-child td {
+				border-bottom: none;
+			}
+
+			.btn-warning {
+				background: var(--warning);
+				color: white;
+				border: none;
+				transition: all 0.3s;
+			}
+
+			.btn-warning:hover {
+				background: #e89c0b;
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+			}
+
+			.btn-danger {
+				background: var(--error);
+				color: white;
+				border: none;
+				transition: all 0.3s;
+			}
+
+			.btn-danger:hover {
+				background: #dc2626;
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+			}
+
+			.action-btn {
+				padding: 8px 12px;
+				border-radius: 8px;
+				font-weight: 500;
+				font-size: 13px;
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				margin: 0 3px;
+			}
+
+			#formSection {
+				background: white;
+				border-radius: 16px;
+				box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+				padding: 30px;
+				margin-bottom: 30px;
+				transition: all 0.3s ease;
+				position: relative;
+				overflow: hidden;
+			}
+
+			#formSection::before {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 6px;
+				height: 100%;
+				background: linear-gradient(
+					to bottom,
+					var(--primary),
+					var(--secondary)
+				);
+				border-radius: 6px 0 0 6px;
+			}
+
+			.form-header {
+				margin-bottom: 25px;
+			}
+
+			.form-title {
+				font-size: 22px;
+				font-weight: 700;
+				color: var(--dark);
+				margin-bottom: 8px;
+			}
+
+			.form-label {
+				font-weight: 600;
+				color: var(--dark);
+				margin-bottom: 8px;
+				font-size: 14px;
+			}
+
+			.form-control,
+			.form-select {
+				border-radius: 12px;
+				padding: 12px 15px;
+				border: 1px solid var(--gray-light);
+				transition: all 0.3s;
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			}
+
+			.form-control:focus,
+			.form-select:focus {
+				border-color: var(--primary);
+				box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+			}
+
+			.btn-secondary {
+				background: #e2e8f0;
+				color: var(--gray);
+				border: none;
+				border-radius: 12px;
+				padding: 12px 20px;
+				font-weight: 600;
+				transition: all 0.3s;
+			}
+
+			.btn-secondary:hover {
+				background: #cbd5e1;
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+			}
+
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.fade-in {
+				animation: fadeInUp 0.6s ease forwards;
+			}
+
+			.delay-1 {
+				animation-delay: 0.1s;
+			}
+
+			.delay-2 {
+				animation-delay: 0.2s;
+			}
+
+			.delay-3 {
+				animation-delay: 0.3s;
+			}
+
+			.hamburger {
+				display: none;
+				background: none;
+				border: none;
+				color: white;
+				font-size: 24px;
+				cursor: pointer;
+			}
+
+			.custom-modal {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.4);
+				z-index: 2000;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.custom-modal.show {
+				display: flex;
+				animation: fadeIn 0.3s;
+			}
+
+			.custom-modal-content {
+				background-color: #fff;
+				border-radius: 16px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+				width: 400px;
+				max-width: 90%;
+				overflow: hidden;
+				transform: translateY(20px);
+				animation: slideUp 0.3s forwards;
+			}
+
+			.custom-modal-header {
+				display: flex;
+				align-items: center;
+				padding: 20px 25px;
+				border-bottom: 1px solid var(--gray-light);
+			}
+
+			.custom-modal-header i {
+				font-size: 24px;
+				margin-right: 12px;
+			}
+
+			.custom-modal-header.success {
+				color: var(--success);
+			}
+
+			.custom-modal-header.error {
+				color: var(--error);
+			}
+
+			.custom-modal-header.warning {
+				color: var(--warning);
+			}
+
+			.custom-modal-header.info {
+				color: var(--primary);
+			}
+
+			.custom-modal-title {
+				font-size: 18px;
+				font-weight: 600;
+				margin: 0;
+			}
+
+			.custom-modal-body {
+				padding: 20px 25px;
+			}
+
+			.custom-modal-footer {
+				padding: 15px 25px;
+				border-top: 1px solid var(--gray-light);
+				display: flex;
+				justify-content: flex-end;
+				gap: 10px;
+			}
+
+			.btn-confirm {
+				background: var(--primary);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				padding: 10px 18px;
+				font-weight: 500;
+				transition: all 0.3s;
+			}
+
+			.btn-confirm:hover {
+				background: var(--primary-dark);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+			}
+
+			.btn-cancel {
+				background: var(--gray-light);
+				color: var(--gray);
+				border: none;
+				border-radius: 8px;
+				padding: 10px 18px;
+				font-weight: 500;
+				transition: all 0.3s;
+			}
+
+			.status-hadir {
+				background-color: rgba(16, 185, 129, 0.1); /* Hijau muda */
+				color: var(--success); /* Hijau */
+				padding: 5px 10px;
+				font-size: 12px;
+				font-weight: 600;
+				border-radius: 12px;
+				display: inline-block;
+			}
+
+			.btn-cancel:hover {
+				background: #cbd5e1;
+			}
+
+			@media (max-width: 992px) {
+				.sidebar {
+					transform: translateX(-100%);
+				}
+
+				.sidebar.active {
+					transform: translateX(0);
+				}
+
+				.main-content {
+					margin-left: 0;
+				}
+
+				.hamburger {
+					display: block;
+					position: fixed;
+					top: 20px;
+					left: 20px;
+					z-index: 1100;
+					background: var(--primary);
+					width: 45px;
+					height: 45px;
+					border-radius: 10px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<button class="hamburger" id="sidebarToggle">
+			<i class="bi bi-list"></i>
+		</button>
+
+		<div class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<div class="sidebar-logo">
+					<img src="../assets/Scan in full (putih).png" alt="Scan In Logo" />
+				</div>
+			</div>
+
+			<div class="sidebar-menu">
+				<a href="dashboard.html" class="menu-item">
+					<i class="bi bi-grid-1x2-fill"></i>
+					<span>Dashboard</span>
+				</a>
+				<a href="pegawai.html" class="menu-item">
+					<i class="bi bi-people"></i>
+					<span>Kelola Pegawai</span>
+				</a>
+				<a href="jadwal.html" class="menu-item active">
+					<i class="bi bi-calendar2-week"></i>
+					<span>Kelola Jadwal</span>
+				</a>
+				<a href="attendance.html" class="menu-item">
+					<i class="bi bi-person-check"></i>
+					<span>Kehadiran Pegawai</span>
+				</a>
+				<a href="pengaturan.html" class="menu-item">
+					<i class="bi bi-gear"></i>
+					<span>Pengaturan</span>
+				</a>
+			</div>
+
+			<div class="sidebar-footer">
+				<div class="admin-info">
+					<div class="admin-avatar">
+						<i class="bi bi-person"></i>
+					</div>
+					<div>
+						<div class="admin-name">Admin BIT</div>
+						<div class="admin-role">Admin</div>
+					</div>
+				</div>
+				<button class="logout-btn" onclick="logout()">
+					<i class="bi bi-box-arrow-right"></i>
+					<span>Logout</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<div class="page-header fade-in">
+				<h1 class="page-title">
+					<i class="bi bi-calendar2-week"></i>
+					Kelola Jadwal
+				</h1>
+				<p class="page-subtitle">
+					Atur waktu kerja untuk setiap hari dalam seminggu
+				</p>
+			</div>
+
+			<div class="d-flex justify-content-end mb-4 fade-in delay-1">
+				<button class="btn btn-custom" onclick="showAddForm()">
+					<i class="bi bi-plus-lg"></i>
+					Tambah Jadwal
+				</button>
+			</div>
+
+			<div class="table-container fade-in delay-2">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Hari</th>
+							<th>Jam Masuk</th>
+							<th>Jam Keluar</th>
+							<th>Status</th>
+							<th>Aksi</th>
+						</tr>
+					</thead>
+					<tbody id="jadwalTableBody"></tbody>
+				</table>
+			</div>
+
+			<div id="formSection" class="d-none fade-in delay-3">
+				<div class="form-header">
+					<h3 class="form-title" id="formTitle">Tambah Jadwal</h3>
+					<p class="text-secondary">
+						Tentukan jadwal kerja untuk hari tertentu
+					</p>
+				</div>
+
+				<form onsubmit="submitJadwal(event)">
+					<input type="hidden" id="editId" />
+					<div class="row">
+						<div class="col-md-4 mb-3">
+							<div class="mb-3">
+								<label class="form-label">
+									<i class="bi bi-calendar-day me-1"></i>
+									Hari
+								</label>
+								<select id="hari" class="form-select" required>
+									<option value="">Pilih Hari</option>
+									<option value="Senin">Senin</option>
+									<option value="Selasa">Selasa</option>
+									<option value="Rabu">Rabu</option>
+									<option value="Kamis">Kamis</option>
+									<option value="Jumat">Jumat</option>
+									<option value="Sabtu">Sabtu</option>
+									<option value="Minggu">Minggu</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-4 mb-3">
+							<div class="mb-3">
+								<label class="form-label">
+									<i class="bi bi-clock me-1"></i>
+									Jam Masuk
+								</label>
+								<input
+									type="time"
+									class="form-control"
+									id="jam_masuk"
+									required
+								/>
+							</div>
+						</div>
+
+						<div class="col-md-4 mb-3">
+							<div class="mb-3">
+								<label class="form-label">
+									<i class="bi bi-clock-history me-1"></i>
+									Jam Keluar
+								</label>
+								<input
+									type="time"
+									class="form-control"
+									id="jam_keluar"
+									required
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div class="d-flex gap-3 mt-3">
+						<button type="submit" class="btn btn-custom">
+							<i class="bi bi-save"></i>
+							Simpan Jadwal
+						</button>
+						<button
+							type="button"
+							class="btn btn-secondary"
+							onclick="hideForm()"
+						>
+							<i class="bi bi-x-lg"></i>
+							Batal
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Toast Container -->
+		<div class="toast-container" id="toastContainer"></div>
+
+		<!-- Konfirmasi Modal -->
+		<div class="custom-modal" id="confirmModal">
+			<div class="custom-modal-content">
+				<div class="custom-modal-header warning">
+					<i class="bi bi-exclamation-triangle"></i>
+					<h5 class="custom-modal-title">Konfirmasi</h5>
+				</div>
+				<div class="custom-modal-body" id="confirmMessage">
+					Apakah Anda yakin ingin melakukan tindakan ini?
+				</div>
+				<div class="custom-modal-footer">
+					<button class="btn-cancel" id="confirmCancelBtn">Batal</button>
+					<button class="btn-confirm" id="confirmYesBtn">Ya, Lanjutkan</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Notifikasi Modal -->
+		<div class="custom-modal" id="notifyModal">
+			<div class="custom-modal-content">
+				<div class="custom-modal-header info" id="notifyHeader">
+					<i class="bi bi-info-circle" id="notifyIcon"></i>
+					<h5 class="custom-modal-title" id="notifyTitle">Informasi</h5>
+				</div>
+				<div class="custom-modal-body" id="notifyMessage">
+					Informasi penting.
+				</div>
+				<div class="custom-modal-footer">
+					<button class="btn-confirm" id="notifyOkBtn">OK</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script>
+			const API_URL =
+				"https://ptbit-backend-874259397350.asia-southeast2.run.app";
+		</script>
+		<script>
+			// Toggle sidebar on mobile
+			document
+				.getElementById("sidebarToggle")
+				.addEventListener("click", function () {
+					document.getElementById("sidebar").classList.toggle("active");
+				});
+
+			const token = localStorage.getItem("token");
+			const user = JSON.parse(localStorage.getItem("user"));
+			const tableBody = document.getElementById("jadwalTableBody");
+
+			if (!token || !user || user.email !== "adminbit@gmail.com") {
+				alert("Akses ditolak. Silakan login sebagai admin.");
+				window.location.href = "login.html";
+			}
+
+			document.addEventListener("DOMContentLoaded", getJadwal);
+
+			async function getJadwal() {
+				tableBody.innerHTML = "";
+				try {
+					const res = await fetch(`${API_URL}/api/schedules`, {
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					});
+
+					const data = await res.json();
+
+					if (!data.success) {
+						throw new Error("Gagal memuat jadwal");
+					}
+
+					data.data.forEach((jadwal) => {
+						const tr = document.createElement("tr");
+
+						// Format jam masuk dan keluar untuk tampilan yang lebih baik
+						const jamMasuk = formatTime(jadwal.jam_masuk);
+						const jamKeluar = formatTime(jadwal.jam_keluar);
+
+						tr.innerHTML = `
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="ms-2">${jadwal.hari}</div>
+                </div>
+              </td>
+              <td>${jamMasuk}</td>
+              <td>${jamKeluar}</td>
+              <td>
+ 			 		<span class="status-hadir rounded-pill">Aktif</span>
+				</td>
+              <td>
+                <button class="btn btn-warning action-btn" onclick='editJadwal(${JSON.stringify(
+									jadwal
+								)})'>
+                  <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-danger action-btn" onclick='hapusJadwal("${
+									jadwal.id
+								}")'>
+                  <i class="bi bi-trash"></i> Hapus
+                </button>
+              </td>
+            `;
+						tableBody.appendChild(tr);
+					});
+				} catch (err) {
+					console.error("Error:", err);
+					alert("Gagal memuat data jadwal: " + err.message);
+				}
+			}
+
+			// Format time from 24h format to 12h format with AM/PM
+			function formatTime(time) {
+				if (!time) return "-";
+
+				// If time is already in HH:MM format, return it
+				if (time.includes(":")) return time;
+
+				// Otherwise format it
+				try {
+					const hour = parseInt(time.substring(0, 2));
+					const minute = time.substring(2, 4);
+					return `${hour}:${minute}`;
+				} catch (e) {
+					return time;
+				}
+			}
+
+			function showNotify(type, title, message) {
+				const modal = document.getElementById("notifyModal");
+				const headerEl = document.getElementById("notifyHeader");
+				const iconEl = document.getElementById("notifyIcon");
+				const titleEl = document.getElementById("notifyTitle");
+				const messageEl = document.getElementById("notifyMessage");
+				const okBtn = document.getElementById("notifyOkBtn");
+
+				// Reset classes
+				headerEl.className = "custom-modal-header";
+
+				// Set appropriate icon and class
+				switch (type) {
+					case "success":
+						headerEl.classList.add("success");
+						iconEl.className = "bi bi-check-circle";
+						break;
+					case "error":
+						headerEl.classList.add("error");
+						iconEl.className = "bi bi-exclamation-circle";
+						break;
+					case "warning":
+						headerEl.classList.add("warning");
+						iconEl.className = "bi bi-exclamation-triangle";
+						break;
+					default:
+						headerEl.classList.add("info");
+						iconEl.className = "bi bi-info-circle";
+						break;
+				}
+
+				titleEl.textContent = title;
+				messageEl.textContent = message;
+				modal.classList.add("show");
+
+				// Reset event listeners
+				const newOkBtn = okBtn.cloneNode(true);
+				okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+
+				// Set up new event listener
+				newOkBtn.addEventListener("click", () => {
+					modal.classList.remove("show");
+				});
+			}
+
+			// Fungsi untuk menampilkan konfirmasi
+			function showConfirm(message, onConfirm) {
+				const modal = document.getElementById("confirmModal");
+				const messageEl = document.getElementById("confirmMessage");
+				const yesBtn = document.getElementById("confirmYesBtn");
+				const cancelBtn = document.getElementById("confirmCancelBtn");
+
+				messageEl.textContent = message;
+				modal.classList.add("show");
+
+				// Reset event listeners
+				const newYesBtn = yesBtn.cloneNode(true);
+				const newCancelBtn = cancelBtn.cloneNode(true);
+				yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+				cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+				// Set up new event listeners
+				newYesBtn.addEventListener("click", () => {
+					modal.classList.remove("show");
+					onConfirm();
+				});
+
+				newCancelBtn.addEventListener("click", () => {
+					modal.classList.remove("show");
+				});
+			}
+
+			function showAddForm() {
+				const formSection = document.getElementById("formSection");
+				const formTitle = document.getElementById("formTitle");
+				formTitle.textContent = "Tambah Jadwal";
+
+				// Reset form
+				document.getElementById("editId").value = "";
+				document.getElementById("hari").value = "";
+				document.getElementById("jam_masuk").value = "";
+				document.getElementById("jam_keluar").value = "";
+
+				formSection.classList.remove("d-none");
+				formSection.scrollIntoView({ behavior: "smooth" });
+			}
+
+			function hideForm() {
+				document.getElementById("formSection").classList.add("d-none");
+			}
+
+			async function submitJadwal(event) {
+				event.preventDefault();
+
+				const formData = {
+					hari: document.getElementById("hari").value,
+					jam_masuk: document.getElementById("jam_masuk").value,
+					jam_keluar: document.getElementById("jam_keluar").value,
+				};
+
+				const editId = document.getElementById("editId").value;
+				const isEdit = !!editId;
+
+				try {
+					const url = isEdit
+						? `${API_URL}/api/schedules/by-id/${editId}`
+						: `${API_URL}/api/schedules`;
+
+					const method = isEdit ? "PUT" : "POST";
+
+					const response = await fetch(url, {
+						method: method,
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify(formData),
+					});
+
+					const data = await response.json();
+
+					if (!response.ok || !data.success) {
+						throw new Error(data.message || "Gagal menyimpan jadwal");
+					}
+
+					getJadwal();
+					hideForm();
+					showNotify(
+						"success",
+						"Berhasil",
+						`Jadwal berhasil ${isEdit ? "diperbarui" : "ditambahkan"}!`
+					);
+				} catch (error) {
+					showNotify("error", "Gagal", "Error: " + error.message);
+				}
+			}
+
+			function editJadwal(jadwal) {
+				const formSection = document.getElementById("formSection");
+				const formTitle = document.getElementById("formTitle");
+				formTitle.textContent = "Edit Jadwal";
+
+				// Fill form with schedule data
+				document.getElementById("editId").value = jadwal.id;
+				document.getElementById("hari").value = jadwal.hari;
+
+				// Format time if needed
+				let jamMasuk = jadwal.jam_masuk;
+				let jamKeluar = jadwal.jam_keluar;
+
+				if (jamMasuk && jamMasuk.length === 4) {
+					jamMasuk = jamMasuk.substring(0, 2) + ":" + jamMasuk.substring(2, 4);
+				}
+
+				if (jamKeluar && jamKeluar.length === 4) {
+					jamKeluar =
+						jamKeluar.substring(0, 2) + ":" + jamKeluar.substring(2, 4);
+				}
+
+				document.getElementById("jam_masuk").value = jamMasuk;
+				document.getElementById("jam_keluar").value = jamKeluar;
+
+				formSection.classList.remove("d-none");
+				formSection.scrollIntoView({ behavior: "smooth" });
+			}
+
+			async function hapusJadwal(id) {
+				showConfirm("Anda yakin ingin menghapus jadwal ini?", async () => {
+					try {
+						const response = await fetch(
+							`${API_URL}/api/schedules/by-id/${id}`,
+							{
+								method: "DELETE",
+								headers: {
+									Authorization: `Bearer ${token}`,
+								},
+							}
+						);
+
+						const data = await response.json();
+
+						if (!response.ok || !data.success) {
+							throw new Error(data.message || "Gagal menghapus jadwal");
+						}
+
+						getJadwal();
+						showNotify("success", "Berhasil", "Jadwal berhasil dihapus!");
+					} catch (error) {
+						showNotify("error", "Gagal", "Error: " + error.message);
+					}
+				});
+			}
+
+			function logout() {
+				localStorage.removeItem("token");
+				localStorage.removeItem("user");
+				window.location.href = "login.html";
+			}
+		</script>
+	</body>
+</html>

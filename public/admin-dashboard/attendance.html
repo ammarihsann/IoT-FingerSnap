@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Scan In</title>
+		<!-- Add favicon -->
+		<link rel="icon" href="../assets/Scan_in(logo_saja).png" type="image/png" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+			rel="stylesheet"
+		/>
+
+		<style>
+			:root {
+				--primary: #2563eb;
+				--primary-light: #60a5fa;
+				--primary-dark: #1d4ed8;
+				--secondary: #0ea5e9;
+				--accent: #f43f5e;
+				--dark: #1e293b;
+				--light: #f8fafc;
+				--gray: #64748b;
+				--gray-light: #e2e8f0;
+				--success: #10b981;
+				--error: #ef4444;
+				--warning: #f59e0b;
+			}
+
+			body {
+				font-family: "Plus Jakarta Sans", sans-serif;
+				background-color: #f1f5f9;
+				margin: 0;
+				padding: 0;
+				min-height: 100vh;
+				color: var(--dark);
+			}
+
+			.sidebar {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 100%;
+				width: 280px; /* Lebar sidebar */
+				background: linear-gradient(145deg, #1e40af, #3b82f6);
+				color: white;
+				z-index: 1000;
+				transition: all 0.3s ease;
+				box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+				display: flex;
+				flex-direction: column;
+				overflow: hidden; /* Mencegah overflow */
+			}
+
+			.sidebar-header {
+				height: 160px; /* Atur sesuai kebutuhan, misal 180-220px */
+				min-height: 0;
+				padding: 20px 30px 10px 30px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center; /* Tengah secara vertikal */
+				background: transparent;
+				overflow: hidden; /* Penting: agar logo tidak keluar area header */
+			}
+
+			.sidebar-menu {
+				padding: 25px 0;
+				flex-grow: 1;
+				overflow-y: auto; /* Allow scrolling for menu items */
+			}
+
+			.sidebar-logo {
+				display: static;
+				align-items: center;
+				justify-content: center;
+				margin: 0 0 8px 0;
+				padding: 0;
+			}
+
+			.sidebar-logo img {
+				height: 100%; /* Logo akan mengikuti tinggi header */
+				max-height: 500px; /* Batas maksimum agar tidak terlalu besar */
+				width: auto;
+				display: block;
+				max-width: 90%;
+				margin: 0 auto;
+				object-fit: contain;
+			}
+
+			.menu-item {
+				padding: 14px 30px;
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				color: rgba(255, 255, 255, 0.85);
+				text-decoration: none;
+				font-weight: 500;
+				transition: all 0.3s;
+				border-left: 4px solid transparent;
+			}
+
+			.menu-item:hover {
+				background: rgba(255, 255, 255, 0.1);
+				color: white;
+			}
+
+			.menu-item.active {
+				background: rgba(255, 255, 255, 0.15);
+				color: white;
+				border-left: 4px solid var(--primary-light);
+			}
+
+			.menu-item i {
+				font-size: 18px;
+				width: 22px;
+				text-align: center;
+			}
+
+			.sidebar-footer {
+				padding: 20px 30px;
+				border-top: 1px solid rgba(255, 255, 255, 0.1);
+			}
+
+			.admin-info {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 15px;
+			}
+
+			.admin-avatar {
+				width: 42px;
+				height: 42px;
+				background: rgba(255, 255, 255, 0.2);
+				border-radius: 12px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 18px;
+			}
+
+			.admin-name {
+				font-size: 15px;
+				font-weight: 600;
+			}
+
+			.admin-role {
+				font-size: 12px;
+				opacity: 0.8;
+			}
+
+			.logout-btn {
+				background: rgba(255, 255, 255, 0.15);
+				color: white;
+				border: none;
+				border-radius: 10px;
+				padding: 12px;
+				font-weight: 500;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+				width: 100%;
+				transition: all 0.3s ease;
+			}
+
+			.logout-btn:hover {
+				background: var(--accent);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(244, 63, 94, 0.3);
+			}
+
+			.main-content {
+				margin-left: 280px;
+				padding: 30px;
+				transition: all 0.3s ease;
+			}
+
+			.page-header {
+				margin-bottom: 30px;
+				padding-bottom: 15px;
+				border-bottom: 1px solid var(--gray-light);
+			}
+
+			.page-title {
+				font-weight: 700;
+				font-size: 28px;
+				color: var(--dark);
+				margin-bottom: 8px;
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.page-subtitle {
+				color: var(--gray);
+				font-size: 15px;
+			}
+
+			.table-container {
+				background: white;
+				border-radius: 16px;
+				box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+				padding: 25px;
+				margin-bottom: 30px;
+				overflow: hidden;
+			}
+
+			.table {
+				width: 100%;
+				margin-bottom: 0;
+			}
+
+			.table th {
+				color: var(--gray);
+				font-weight: 600;
+				padding: 15px 20px;
+				border-bottom: 2px solid var(--gray-light);
+				background-color: rgba(241, 245, 249, 0.5);
+			}
+
+			.table td {
+				padding: 15px 20px;
+				vertical-align: middle;
+				border-bottom: 1px solid var(--gray-light);
+				transition: all 0.2s;
+			}
+
+			.table tr:hover td {
+				background-color: rgba(96, 165, 250, 0.05);
+			}
+
+			.table tbody tr:last-child td {
+				border-bottom: none;
+			}
+
+			.btn-export {
+				background: linear-gradient(to right, #10b981, #059669);
+				color: white;
+				border: none;
+				border-radius: 12px;
+				padding: 12px 20px;
+				font-weight: 600;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				transition: all 0.3s;
+			}
+
+			.btn-export:hover {
+				background: linear-gradient(to right, #059669, #047857);
+				transform: translateY(-2px);
+				box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+				color: white;
+			}
+			.form-select-lg {
+				padding: 0.75rem 1rem;
+				border-radius: 10px;
+				border: 1px solid var(--gray-light);
+			}
+
+			.form-select:focus {
+				border-color: var(--success);
+				box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+			}
+
+			/* Loading state untuk tombol download */
+			.btn.is-loading {
+				position: relative;
+				color: transparent !important;
+				pointer-events: none;
+			}
+
+			.btn.is-loading::after {
+				content: "";
+				position: absolute;
+				left: calc(50% - 0.7rem);
+				top: calc(50% - 0.7rem);
+				width: 1.4rem;
+				height: 1.4rem;
+				border-radius: 50%;
+				border: 2px solid white;
+				border-top-color: transparent;
+				animation: spin 0.8s linear infinite;
+			}
+
+			@keyframes spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+
+			.btn-custom {
+				background: linear-gradient(to right, var(--primary), var(--secondary));
+				color: white;
+				border: none;
+				border-radius: 12px;
+				padding: 12px 20px;
+				font-weight: 600;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				transition: all 0.3s;
+			}
+
+			.btn-custom:hover {
+				background: linear-gradient(
+					to right,
+					var(--primary-dark),
+					var(--primary)
+				);
+				transform: translateY(-2px);
+				box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+			}
+
+			.btn-detail {
+				background: var(--primary);
+				color: white;
+				border: none;
+				transition: all 0.3s;
+			}
+
+			.btn-detail:hover {
+				background: var(--primary-dark);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+			}
+
+			.action-btn {
+				padding: 8px 12px;
+				border-radius: 8px;
+				font-weight: 500;
+				font-size: 13px;
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				margin: 0 3px;
+			}
+
+			.hamburger {
+				display: none;
+				background: none;
+				border: none;
+				color: white;
+				font-size: 24px;
+				cursor: pointer;
+			}
+
+			.status-badge {
+				font-size: 12px;
+				font-weight: 600;
+				padding: 6px 12px;
+				border-radius: 20px;
+			}
+
+			.status-hadir {
+				background-color: rgba(16, 185, 129, 0.1); /* Hijau muda */
+				color: #10b981; /* Hijau */
+				padding: 5px 10px;
+				font-size: 12px;
+				font-weight: 600;
+				border-radius: 12px;
+				display: inline-block;
+			}
+
+			.status-terlambat {
+				background-color: rgba(245, 158, 11, 0.1); /* Kuning muda */
+				color: #f59e0b; /* Kuning */
+				padding: 5px 10px;
+				font-size: 12px;
+				font-weight: 600;
+				border-radius: 12px;
+				display: inline-block;
+			}
+
+			.status-absen {
+				background-color: rgba(239, 68, 68, 0.1); /* Merah muda */
+				color: #ef4444; /* Merah */
+				padding: 5px 10px;
+				font-size: 12px;
+				font-weight: 600;
+				border-radius: 12px;
+				display: inline-block;
+			}
+
+			.text-danger {
+				color: var(--error) !important; /* Gunakan warna merah dari variabel */
+			}
+
+			.date-filter {
+				display: flex;
+				align-items: center;
+				gap: 15px;
+				margin-bottom: 20px;
+			}
+
+			.date-filter .form-control {
+				max-width: 200px;
+				border-radius: 12px;
+				padding: 10px 15px;
+				border: 1px solid var(--gray-light);
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			}
+
+			.day-label {
+				font-weight: 600;
+				color: var(--primary);
+				padding: 6px 15px;
+				border-radius: 8px;
+				background-color: rgba(37, 99, 235, 0.1);
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+			}
+			.modal {
+				z-index: 1055;
+			}
+			/* Modal styles */
+			.modal-content {
+				border-radius: 16px;
+				border: none;
+				box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+			}
+
+			.modal-dialog-centered {
+				display: flex;
+				align-items: center;
+				min-height: calc(100% - 1rem);
+			}
+
+			.modal-dialog.modal-lg {
+				max-width: 800px;
+			}
+
+			.modal-header {
+				background: linear-gradient(to right, var(--primary), var(--secondary));
+				color: white;
+				border-bottom: none;
+				padding: 20px 25px;
+			}
+			.modal.fade .modal-dialog.modal-dialog-centered {
+				transform: translateY(-50px);
+				transition: transform 0.3s ease-out;
+			}
+
+			.modal.show .modal-dialog.modal-dialog-centered {
+				transform: translateY(0);
+			}
+
+			.modal-title {
+				font-weight: 700;
+				font-size: 20px;
+			}
+
+			.modal-body {
+				padding: 25px;
+			}
+
+			.detail-row {
+				margin-bottom: 15px;
+			}
+
+			.detail-label {
+				font-weight: 600;
+				color: var(--gray);
+				font-size: 14px;
+				margin-bottom: 8px;
+				display: block;
+			}
+
+			.detail-value {
+				font-weight: 500;
+				color: var(--dark);
+				font-size: 16px;
+			}
+
+			.photo-preview {
+				border-radius: 12px;
+				overflow: hidden;
+				max-width: 100%;
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			}
+			photo-preview-small {
+				border-radius: 8px;
+				overflow: hidden;
+				max-width: 100%;
+				max-height: 220px;
+				box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+				margin-top: 8px;
+			}
+
+			.photo-preview-small img {
+				width: 100%;
+				height: auto;
+				object-fit: contain;
+			}
+
+			.photo-preview img {
+				width: 100%;
+				height: auto;
+				object-fit: cover;
+			}
+
+			.custom-modal {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.4);
+				z-index: 2000;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.custom-modal.show {
+				display: flex;
+				animation: fadeIn 0.3s;
+			}
+
+			.custom-modal-content {
+				background-color: #fff;
+				border-radius: 16px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+				width: 400px;
+				max-width: 90%;
+				overflow: hidden;
+				transform: translateY(20px);
+				animation: slideUp 0.3s forwards;
+			}
+
+			.custom-modal-header {
+				display: flex;
+				align-items: center;
+				padding: 20px 25px;
+				border-bottom: 1px solid var(--gray-light);
+			}
+
+			.custom-modal-header i {
+				font-size: 24px;
+				margin-right: 12px;
+			}
+
+			.custom-modal-header.success {
+				color: var(--success);
+			}
+
+			.custom-modal-header.error {
+				color: var(--error);
+			}
+
+			.custom-modal-header.warning {
+				color: var(--warning);
+			}
+
+			.custom-modal-header.info {
+				color: var(--primary);
+			}
+
+			.custom-modal-title {
+				font-size: 18px;
+				font-weight: 600;
+				margin: 0;
+			}
+
+			.custom-modal-body {
+				padding: 20px 25px;
+			}
+
+			.custom-modal-footer {
+				padding: 15px 25px;
+				border-top: 1px solid var(--gray-light);
+				display: flex;
+				justify-content: flex-end;
+				gap: 10px;
+			}
+
+			.btn-confirm {
+				background: var(--primary);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				padding: 10px 18px;
+				font-weight: 500;
+				transition: all 0.3s;
+			}
+
+			.btn-confirm:hover {
+				background: var(--primary-dark);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+			}
+
+			.btn-cancel {
+				background: var(--gray-light);
+				color: var(--gray);
+				border: none;
+				border-radius: 8px;
+				padding: 10px 18px;
+				font-weight: 500;
+				transition: all 0.3s;
+			}
+
+			.btn-cancel:hover {
+				background: #cbd5e1;
+			}
+
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.fade-in {
+				animation: fadeInUp 0.6s ease forwards;
+			}
+
+			.delay-1 {
+				animation-delay: 0.1s;
+			}
+
+			.delay-2 {
+				animation-delay: 0.2s;
+			}
+
+			.refreshing {
+				animation: fadeOutIn 0.5s ease-in-out;
+			}
+
+			@keyframes fadeOutIn {
+				0% {
+					opacity: 1;
+				}
+				50% {
+					opacity: 0.5;
+				}
+				100% {
+					opacity: 1;
+				}
+			}
+
+			@media (max-width: 992px) {
+				.sidebar {
+					transform: translateX(-100%);
+				}
+
+				.sidebar.active {
+					transform: translateX(0);
+				}
+
+				.main-content {
+					margin-left: 0;
+				}
+
+				.hamburger {
+					display: block;
+					position: fixed;
+					top: 20px;
+					left: 20px;
+					z-index: 1100;
+					background: var(--primary);
+					width: 45px;
+					height: 45px;
+					border-radius: 10px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<button class="hamburger" id="sidebarToggle">
+			<i class="bi bi-list"></i>
+		</button>
+
+		<div class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<div class="sidebar-logo">
+					<img src="../assets/Scan in full (putih).png" alt="Scan In Logo" />
+				</div>
+			</div>
+
+			<div class="sidebar-menu">
+				<a href="dashboard.html" class="menu-item">
+					<i class="bi bi-grid-1x2-fill"></i>
+					<span>Dashboard</span>
+				</a>
+				<a href="pegawai.html" class="menu-item">
+					<i class="bi bi-people"></i>
+					<span>Kelola Pegawai</span>
+				</a>
+				<a href="jadwal.html" class="menu-item">
+					<i class="bi bi-calendar2-week"></i>
+					<span>Kelola Jadwal</span>
+				</a>
+				<a href="attendance.html" class="menu-item active">
+					<i class="bi bi-person-check"></i>
+					<span>Kehadiran Pegawai</span>
+				</a>
+				<a href="pengaturan.html" class="menu-item">
+					<i class="bi bi-gear"></i>
+					<span>Pengaturan</span>
+				</a>
+			</div>
+
+			<div class="sidebar-footer">
+				<div class="admin-info">
+					<div class="admin-avatar">
+						<i class="bi bi-person"></i>
+					</div>
+					<div>
+						<div class="admin-name">Admin BIT</div>
+						<div class="admin-role">Admin</div>
+					</div>
+				</div>
+				<button class="logout-btn" onclick="logout()">
+					<i class="bi bi-box-arrow-right"></i>
+					<span>Logout</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<div class="page-header fade-in">
+				<h1 class="page-title">
+					<i class="bi bi-person-check"></i>
+					Kehadiran Pegawai
+				</h1>
+				<p class="page-subtitle">
+					Monitor kehadiran pegawai pada hari
+					<span class="day-label">
+						<i class="bi bi-calendar-day"></i>
+						<span id="currentDay"></span>
+					</span>
+				</p>
+			</div>
+
+			<div
+				class="d-flex justify-content-between align-items-center fade-in delay-1 mb-4"
+			>
+				<div class="date-filter">
+					<label for="dateFilter" class="form-label mb-0">
+						<i class="bi bi-calendar-date me-1"></i>
+						Pilih Tanggal:
+					</label>
+					<input
+						type="date"
+						class="form-control"
+						id="dateFilter"
+						onchange="filterByDate(this.value)"
+					/>
+					<button class="btn btn-custom" onclick="refreshData()">
+						<i class="bi bi-arrow-clockwise"></i>
+						Refresh Data
+					</button>
+				</div>
+
+				<button class="btn btn-export" onclick="showRekapModal()">
+					<i class="bi bi-file-earmark-excel"></i> Rekap Absensi
+				</button>
+			</div>
+
+			<!-- Modal Rekap -->
+			<div class="modal fade" id="rekapModal" tabindex="-1" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">
+								<i class="bi bi-file-earmark-excel me-2"></i>
+								Rekap Absensi Pegawai
+							</h5>
+							<button
+								type="button"
+								class="btn-close"
+								data-bs-dismiss="modal"
+							></button>
+						</div>
+						<div class="modal-body">
+							<div class="mb-4">
+								<p class="text-muted">
+									<i class="bi bi-info-circle me-2"></i>
+									Pilih periode rekap absensi yang ingin diunduh. Data akan
+									diunduh dalam format Excel.
+								</p>
+							</div>
+
+							<div class="form-group">
+								<label for="rekapPeriode" class="form-label fw-medium">
+									<i class="bi bi-calendar-range me-2"></i>
+									Pilih Periode:
+								</label>
+								<select id="rekapPeriode" class="form-select form-select-lg">
+									<option value="1">1 Hari Terakhir</option>
+									<option value="7">7 Hari Terakhir</option>
+									<option value="30" selected>30 Hari Terakhir</option>
+									<option value="60">60 Hari Terakhir</option>
+									<option value="90">90 Hari Terakhir</option>
+								</select>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-secondary" data-bs-dismiss="modal">
+								<i class="bi bi-x"></i> Batal
+							</button>
+							<button
+								class="btn btn-export"
+								id="downloadRekapBtn"
+								onclick="downloadRekap()"
+							>
+								<i class="bi bi-download"></i> Download Excel
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="table-container fade-in delay-2">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>No</th>
+							<th>Tanggal</th>
+							<th>ID Karyawan</th>
+							<th>Nama</th>
+							<th>Fingerprint ID</th>
+							<th>Status</th>
+							<th>Aksi</th>
+						</tr>
+					</thead>
+					<tbody id="attendanceTableBody">
+						<tr>
+							<td colspan="6" class="text-center py-4">
+								<div class="spinner-border text-primary" role="status">
+									<span class="visually-hidden">Loading...</span>
+								</div>
+								<p class="mt-2 mb-0">Memuat data kehadiran...</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Detail Modal -->
+		<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-lg modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">
+							<i class="bi bi-card-list"></i>
+							Detail Kehadiran
+						</h5>
+						<button
+							type="button"
+							class="btn-close btn-close-white"
+							data-bs-dismiss="modal"
+							aria-label="Close"
+						></button>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<!-- Kolom kiri untuk informasi -->
+							<div class="col-md-8">
+								<div class="row">
+									<div class="col-md-6">
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-calendar3"></i> Tanggal
+											</span>
+											<div class="detail-value" id="detailDate">-</div>
+										</div>
+
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-person-badge"></i> ID Karyawan
+											</span>
+											<div class="detail-value" id="detailEmployeeId">-</div>
+										</div>
+
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-fingerprint"></i> Fingerprint ID
+											</span>
+											<div class="detail-value" id="detailFingerprintId">-</div>
+										</div>
+
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-check-circle"></i> Status
+											</span>
+											<div class="detail-value" id="detailStatus">-</div>
+										</div>
+									</div>
+
+									<div class="col-md-6">
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-person-circle"></i> Nama Pegawai
+											</span>
+											<div class="detail-value" id="detailEmployeeName">-</div>
+										</div>
+
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-briefcase"></i> Role
+											</span>
+											<div class="detail-value" id="detailRole">-</div>
+										</div>
+
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-clock"></i> Check-in
+											</span>
+											<div class="detail-value" id="detailCheckIn">-</div>
+										</div>
+
+										<div class="detail-row">
+											<span class="detail-label">
+												<i class="bi bi-clock-history"></i> Check-out
+											</span>
+											<div class="detail-value" id="detailCheckOut">-</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Kolom kanan untuk foto (ukuran lebih kecil) -->
+							<div class="col-md-4">
+								<div class="detail-row h-100">
+									<span class="detail-label">
+										<i class="bi bi-camera"></i> Foto Kehadiran
+									</span>
+									<div class="photo-preview-small">
+										<img
+											id="detailPhoto"
+											src=""
+											alt="Foto kehadiran tidak tersedia"
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-bs-dismiss="modal"
+						>
+							Tutup
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Toast Container -->
+		<div class="toast-container" id="toastContainer"></div>
+
+		<!-- Konfirmasi Modal -->
+		<div class="custom-modal" id="confirmModal">
+			<div class="custom-modal-content">
+				<div class="custom-modal-header warning">
+					<i class="bi bi-exclamation-triangle"></i>
+					<h5 class="custom-modal-title">Konfirmasi</h5>
+				</div>
+				<div class="custom-modal-body" id="confirmMessage">
+					Apakah Anda yakin ingin melakukan tindakan ini?
+				</div>
+				<div class="custom-modal-footer">
+					<button class="btn-cancel" id="confirmCancelBtn">Batal</button>
+					<button class="btn-confirm" id="confirmYesBtn">Ya, Lanjutkan</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Notifikasi Modal -->
+		<div class="custom-modal" id="notifyModal">
+			<div class="custom-modal-content">
+				<div class="custom-modal-header info" id="notifyHeader">
+					<i class="bi bi-info-circle" id="notifyIcon"></i>
+					<h5 class="custom-modal-title" id="notifyTitle">Informasi</h5>
+				</div>
+				<div class="custom-modal-body" id="notifyMessage">
+					Informasi penting.
+				</div>
+				<div class="custom-modal-footer">
+					<button class="btn-confirm" id="notifyOkBtn">OK</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script>
+			const API_URL =
+				"https://ptbit-backend-874259397350.asia-southeast2.run.app";
+		</script>
+		<script>
+			// Toggle sidebar on mobile
+			document
+				.getElementById("sidebarToggle")
+				.addEventListener("click", function () {
+					document.getElementById("sidebar").classList.toggle("active");
+				});
+
+			const token = localStorage.getItem("token");
+			const user = JSON.parse(localStorage.getItem("user"));
+			const tableBody = document.getElementById("attendanceTableBody");
+			const detailModal = new bootstrap.Modal(
+				document.getElementById("detailModal")
+			);
+
+			// Users cache to store employee data
+			let usersCache = {};
+
+			// Days of week in Indonesian
+			const daysIndo = [
+				"Minggu",
+				"Senin",
+				"Selasa",
+				"Rabu",
+				"Kamis",
+				"Jumat",
+				"Sabtu",
+			];
+
+			if (!token || !user || user.email !== "adminbit@gmail.com") {
+				alert("Akses ditolak. Silakan login sebagai admin.");
+				window.location.href = "login.html";
+			}
+
+			let rekapModalInstance = null;
+
+			document.addEventListener("DOMContentLoaded", () => {
+				initializePage();
+				fetchUsers();
+				rekapModalInstance = new bootstrap.Modal(
+					document.getElementById("rekapModal")
+				);
+			});
+
+			function showRekapModal() {
+				rekapModalInstance.show();
+			}
+
+			function initializePage() {
+				const today = new Date();
+				const dateFilter = document.getElementById("dateFilter");
+
+				if (dateFilter) {
+					dateFilter.value = formatDateForInput(today);
+				}
+
+				fetchAttendanceData(formatDateForFilter(today));
+			}
+
+			async function downloadRekap() {
+				const downloadBtn = document.getElementById("downloadRekapBtn");
+				const periode = document.getElementById("rekapPeriode").value;
+				const url = `${API_URL}/api/absensi/rekap?days=${periode}`;
+
+				try {
+					// Tampilkan loading state
+					downloadBtn.classList.add("is-loading");
+					downloadBtn.disabled = true;
+
+					const response = await fetch(url, {
+						headers: { Authorization: `Bearer ${token}` },
+					});
+
+					if (!response.ok) throw new Error("Gagal mengunduh rekap absensi");
+
+					const blob = await response.blob();
+
+					// Buat link download
+					const link = document.createElement("a");
+					link.href = window.URL.createObjectURL(blob);
+					link.download = `rekap-absensi-${periode}hari.xlsx`;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					// Tampilkan notifikasi sukses
+					showNotify("success", "Berhasil", "Rekap absensi berhasil diunduh!");
+
+					// Tutup modal
+					rekapModalInstance.hide();
+				} catch (err) {
+					console.error("Error downloading report:", err);
+					showNotify("error", "Gagal", "Gagal mengunduh rekap: " + err.message);
+				} finally {
+					// Kembalikan tombol ke normal
+					downloadBtn.classList.remove("is-loading");
+					downloadBtn.disabled = false;
+				}
+			}
+
+			// Fungsi untuk menampilkan toast notification
+			function showToast(type, message) {
+				const toastEl = document.createElement("div");
+				toastEl.className = `toast align-items-center text-white ${
+					type === "success" ? "bg-success" : "bg-danger"
+				} border-0 position-fixed bottom-0 end-0 m-4`;
+				toastEl.setAttribute("role", "alert");
+				toastEl.innerHTML = `
+			    <div class="d-flex">
+			      <div class="toast-body">
+			        <i class="bi ${
+								type === "success"
+									? "bi-check-circle-fill"
+									: "bi-exclamation-circle-fill"
+							} me-2"></i>
+			        ${message}
+			      </div>
+			      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+			    </div>
+			  `;
+				document.body.appendChild(toastEl);
+
+				const bsToast = new bootstrap.Toast(toastEl, {
+					delay: 3000,
+				});
+				bsToast.show();
+
+				toastEl.addEventListener("hidden.bs.toast", () => {
+					document.body.removeChild(toastEl);
+				});
+			}
+
+			function initializePage() {
+				// Set current day name
+				const today = new Date();
+				const dayName = daysIndo[today.getDay()];
+				document.getElementById("currentDay").textContent = dayName;
+
+				// Set date filter to today
+				const dateFilter = document.getElementById("dateFilter");
+				dateFilter.value = formatDateForInput(today);
+
+				// Fetch attendance data
+				fetchAttendanceData(formatDateForFilter(today));
+			}
+
+			function formatDateForInput(date) {
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, "0");
+				const day = String(date.getDate()).padStart(2, "0");
+				return `${year}-${month}-${day}`;
+			}
+
+			function formatDateForFilter(date) {
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, "0");
+				const day = String(date.getDate()).padStart(2, "0");
+				return `${year}-${month}-${day}`;
+			}
+
+			async function fetchUsers(id_karyawan) {
+				try {
+					const response = await fetch(`${API_URL}/api/users/${id_karyawan}`, {
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					});
+
+					if (!response.ok) throw new Error("Gagal mengambil data pengguna.");
+
+					const user = await response.json();
+					usersCache[id_karyawan] = user.data; // Cache user data
+					return user.data;
+				} catch (error) {
+					console.error("Error fetching user data:", error);
+					return null;
+				}
+			}
+
+			async function fetchAttendanceData(date) {
+				console.log("Fetching attendance data for date:", date); // Debugging
+
+				try {
+					const url = `${API_URL}/api/absensi/attendance?date=${date}`;
+					const response = await fetch(url, {
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					});
+
+					if (!response.ok) throw new Error("Gagal mengambil data kehadiran.");
+
+					const data = await response.json();
+					console.log("Attendance data received:", data); // Debugging
+
+					if (!data.success)
+						throw new Error(data.message || "Gagal memuat data.");
+
+					renderAttendanceTable(data.data);
+				} catch (error) {
+					console.error("Error fetching attendance data:", error);
+					tableBody.innerHTML = `
+			      <tr>
+			        <td colspan="7" class="text-center py-4">
+			          <i class="bi bi-exclamation-circle text-danger" style="font-size: 1.5rem;"></i>
+			          <p class="mt-2 mb-0">Gagal memuat data: ${error.message}</p>
+			        </td>
+			      </tr>
+			    `;
+				}
+			}
+
+			function renderAttendanceTable(attendanceData) {
+				if (!attendanceData || attendanceData.length === 0) {
+					tableBody.innerHTML = `
+			      <tr>
+			        <td colspan="7" class="text-center py-4">
+			          <i class="bi bi-calendar-x text-secondary" style="font-size: 1.5rem;"></i>
+			          <p class="mt-2 mb-0">Tidak ada data kehadiran untuk tanggal yang dipilih</p>
+			        </td>
+			      </tr>
+			    `;
+					return;
+				}
+
+				tableBody.innerHTML = "";
+
+				attendanceData.forEach((attendance, index) => {
+					const tr = document.createElement("tr");
+
+					// Tentukan kelas badge status
+					let statusBadgeClass = "status-hadir"; // Default untuk hadir
+					if (attendance.status === "terlambat") {
+						statusBadgeClass = "status-terlambat";
+					} else if (
+						attendance.status === "tidak hadir" ||
+						attendance.status === "alfa"
+					) {
+						statusBadgeClass = "status-absen"; // Gunakan kelas untuk absen/tidak hadir
+					}
+
+					tr.innerHTML = `
+			      <td>${index + 1}</td>
+			      <td>${attendance.date}</td>
+			      <td>${attendance.id_karyawan}</td>
+			      <td>${attendance.nama}</td>
+			      <td>${attendance.fingerprint_id}</td>
+			      <td>
+			        <span class="status-badge ${statusBadgeClass}">
+			          ${capitalizeFirstLetter(attendance.status)}
+			        </span>
+			      </td>
+			      <td>
+			        <button class="btn btn-detail action-btn" onclick='showDetail(${JSON.stringify(
+								attendance
+							)})'>
+			          <i class="bi bi-eye"></i> Detail
+			        </button>
+			      </td>
+			    `;
+
+					tableBody.appendChild(tr);
+				});
+			}
+
+			function formatDisplayDate(dateString) {
+				if (!dateString) return "-";
+
+				try {
+					const date = new Date(dateString);
+					return new Intl.DateTimeFormat("id-ID", {
+						day: "numeric",
+						month: "long",
+						year: "numeric",
+					}).format(date);
+				} catch (e) {
+					return dateString;
+				}
+			}
+
+			function formatTime(timeString) {
+				// Tidak perlu konversi, cukup tampilkan saja
+				return timeString || "-";
+			}
+
+			function capitalizeFirstLetter(string) {
+				if (!string) return "-";
+				return string.charAt(0).toUpperCase() + string.slice(1);
+			}
+
+			function showDetail(attendance) {
+				// Set basic attendance data
+				document.getElementById("detailDate").textContent = formatDisplayDate(
+					attendance.date
+				);
+				document.getElementById("detailEmployeeId").textContent =
+					attendance.id_karyawan || "-";
+				document.getElementById("detailFingerprintId").textContent =
+					attendance.fingerprint_id || "-";
+				document.getElementById("detailCheckIn").textContent =
+					formatTime(attendance.check_in) || "-";
+				document.getElementById("detailCheckOut").textContent =
+					formatTime(attendance.check_out) || "-";
+
+				// Set user data
+				document.getElementById("detailEmployeeName").textContent =
+					attendance.nama || "Tidak ditemukan";
+				document.getElementById("detailRole").textContent =
+					attendance.role || "Tidak ditemukan";
+
+				// Set status with appropriate styling
+				const statusElement = document.getElementById("detailStatus");
+				statusElement.textContent =
+					capitalizeFirstLetter(attendance.status) || "-";
+
+				// Reset status classes
+				statusElement.className = "detail-value";
+
+				// Add appropriate status class
+				if (attendance.status === "hadir") {
+					statusElement.classList.add("text-success");
+				} else if (attendance.status === "terlambat") {
+					statusElement.classList.add("text-warning");
+				} else if (attendance.status === "alfa") {
+					statusElement.classList.add("text-danger"); // Tambahkan warna merah untuk alfa
+				}
+
+				// Set photo if available
+				const photoElement = document.getElementById("detailPhoto");
+				if (attendance.photo_url) {
+					photoElement.src = attendance.photo_url;
+					photoElement.style.display = "block";
+				} else {
+					photoElement.src =
+						"https://via.placeholder.com/400x300?text=No+Photo";
+					photoElement.style.display = "block";
+				}
+
+				// Show the modal
+				detailModal.show();
+			}
+
+			function getStatusClass(status) {
+				if (status === "hadir") return "status-hadir";
+				if (status === "terlambat") return "status-terlambat";
+				return "status-absen"; // untuk "tidak hadir"
+			}
+
+			function filterByDate(date) {
+				fetchAttendanceData(date);
+			}
+
+			function refreshData() {
+				const dateFilter = document.getElementById("dateFilter");
+				const tableBody = document.getElementById("attendanceTableBody");
+
+				if (!dateFilter || !dateFilter.value) {
+					showNotify("warning", "Peringatan", "Pilih tanggal terlebih dahulu!");
+					return;
+				}
+
+				// Tampilkan spinner di tabel
+				tableBody.innerHTML = `
+			    <tr>
+			      <td colspan="7" class="text-center py-4">
+			        <div class="spinner-border text-primary" role="status">
+			          <span class="visually-hidden">Loading...</span>
+			        </div>
+			        <p class="mt-2 mb-0">Memuat data kehadiran...</p>
+			      </td>
+			    </tr>
+			  `;
+
+				// Panggil fungsi untuk memuat data
+				fetchAttendanceData(dateFilter.value).finally(() => {
+					// Spinner akan diganti dengan data tabel setelah data selesai dimuat
+				});
+			}
+
+			function showNotify(type, title, message) {
+				const modal = document.getElementById("notifyModal");
+				const headerEl = document.getElementById("notifyHeader");
+				const iconEl = document.getElementById("notifyIcon");
+				const titleEl = document.getElementById("notifyTitle");
+				const messageEl = document.getElementById("notifyMessage");
+				const okBtn = document.getElementById("notifyOkBtn");
+
+				// Reset classes
+				headerEl.className = "custom-modal-header";
+
+				// Set appropriate icon and class
+				switch (type) {
+					case "success":
+						headerEl.classList.add("success");
+						iconEl.className = "bi bi-check-circle";
+						break;
+					case "error":
+						headerEl.classList.add("error");
+						iconEl.className = "bi bi-exclamation-circle";
+						break;
+					case "warning":
+						headerEl.classList.add("warning");
+						iconEl.className = "bi bi-exclamation-triangle";
+						break;
+					default:
+						headerEl.classList.add("info");
+						iconEl.className = "bi bi-info-circle";
+						break;
+				}
+
+				titleEl.textContent = title;
+				messageEl.textContent = message;
+				modal.classList.add("show");
+
+				// Reset event listeners
+				const newOkBtn = okBtn.cloneNode(true);
+				okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+
+				// Set up new event listener
+				newOkBtn.addEventListener("click", () => {
+					modal.classList.remove("show");
+				});
+			}
+
+			// Fungsi untuk menampilkan konfirmasi
+			function showConfirm(message, onConfirm) {
+				const modal = document.getElementById("confirmModal");
+				const messageEl = document.getElementById("confirmMessage");
+				const yesBtn = document.getElementById("confirmYesBtn");
+				const cancelBtn = document.getElementById("confirmCancelBtn");
+
+				messageEl.textContent = message;
+				modal.classList.add("show");
+
+				// Reset event listeners
+				const newYesBtn = yesBtn.cloneNode(true);
+				const newCancelBtn = cancelBtn.cloneNode(true);
+				yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+				cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+				// Set up new event listeners
+				newYesBtn.addEventListener("click", () => {
+					modal.classList.remove("show");
+					onConfirm();
+				});
+
+				newCancelBtn.addEventListener("click", () => {
+					modal.classList.remove("show");
+				});
+			}
+
+			function logout() {
+				localStorage.removeItem("token");
+				localStorage.removeItem("user");
+				window.location.href = "login.html";
+			}
+		</script>
+	</body>
+</html>
