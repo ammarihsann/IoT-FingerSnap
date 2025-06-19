@@ -5,3 +5,6 @@ node_modules/
 TESTING/
 .dockerignore
 Dockerfile
+ArduinoCode/
+web/
+./src/config/serviceAccountKey.json
