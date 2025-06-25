@@ -62,9 +62,9 @@ Sistem absensi digital berbasis IoT yang modern, praktis, dan real-time. Menggab
 ## 🔗 Preview Web Scan In
 
 <!-- Login -->
-
-![Login Page](https://drive.google.com/uc?export=view&id=1e2_IxdChnWosdi_f-kQN4xp1ufVG_c67)
-
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=1e2_IxdChnWosdi_f-kQN4xp1ufVG_c67" alt="Dashboard Utama" width="500"/>
+</p>
 <p align="center"><i>Halaman login untuk admin Scan In. Masukkan email dan password untuk mengakses dashboard.</i></p>
 
 <!-- Dashboard Utama -->
