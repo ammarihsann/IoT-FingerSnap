@@ -59,32 +59,34 @@ Sistem absensi digital berbasis IoT yang modern, praktis, dan real-time. Menggab
 
 ---
 
-## 🔗 Preview Scan In
+## 🔗 Preview Web Scan In
+
+<!-- Login -->
 
 ![Login Page](https://drive.google.com/uc?export=view&id=1e2_IxdChnWosdi_f-kQN4xp1ufVG_c67)
 
 <p align="center"><i>Halaman login untuk admin Scan In. Masukkan email dan password untuk mengakses dashboard.</i></p>
 
 <!-- Dashboard Utama -->
-
-![Dashboard Utama](https://drive.google.com/uc?export=view&id=1W2MIAe4k8VwBsrnKd1ORWzUc1nRDCV0p)
-
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=1W2MIAe4k8VwBsrnKd1ORWzUc1nRDCV0p" alt="Dashboard Utama" width="500"/>
+</p>
 <p align="center"><i>Dashboard utama aplikasi Scan In: menampilkan statistik pegawai, jadwal, dan status server.</i></p>
 
 <!-- Mengelola Pegawai -->
-
-![Kelola Pegawai](https://drive.google.com/uc?export=view&id=1wTyfkmFAXD6SCgk4qwo4QMwXiTHUBxzW)
-
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=1wTyfkmFAXD6SCgk4qwo4QMwXiTHUBxzW" alt="Kelola Pegawai" width="500"/>
+</p>
 <p align="center"><i>Fitur kelola pegawai: tambah, edit, dan hapus data pegawai beserta fingerprint ID.</i></p>
 
 <!-- Mengelola Jadwal -->
-
-![Kelola Jadwal](https://drive.google.com/uc?export=view&id=1AZUX0FlyCfGFFBsvVogeUK1vM61xdiIC)
-
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=1AZUX0FlyCfGFFBsvVogeUK1vM61xdiIC" alt="Kelola Jadwal" width="500"/>
+</p>
 <p align="center"><i>Fitur kelola jadwal: atur jam masuk dan keluar untuk setiap hari kerja.</i></p>
 
 <!-- Kehadiran Pegawai -->
-
-![Kehadiran Pegawai](https://drive.google.com/uc?export=view&id=18C2JTR9cmukj8-U9jkcd9wVcUNaokr6q)
-
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=18C2JTR9cmukj8-U9jkcd9wVcUNaokr6q" alt="Kehadiran Pegawai" width="500"/>
+</p>
 <p align="center"><i>Rekap kehadiran pegawai: monitoring status hadir/tidak hadir setiap hari.</i></p>
