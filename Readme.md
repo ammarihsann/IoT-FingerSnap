@@ -58,3 +58,8 @@ Sistem absensi digital berbasis IoT yang modern, praktis, dan real-time. Menggab
   - `public/assets/` – aset gambar/logo
 
 ---
+
+## 🔗 Preview Scan In
+
+![Preview Scan In Dashboard](https://link-gambar-anda.com/gambar1.png)
+<img src="https://drive.google.com/uc?export=view&id=1e2_IxdChnWosdi_f-kQN4xp1ufVG_c67" alt="Login Page" width="600"/>
